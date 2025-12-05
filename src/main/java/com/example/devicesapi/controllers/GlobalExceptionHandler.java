@@ -15,8 +15,8 @@ public class GlobalExceptionHandler {
     /**
      * handles all exceptions caused by missing or invalid input values
      *
-     * @param ex - throwed exception
-     * @return
+     * @param ex - thrown exception
+     * @return a formated error message
      */
     @ExceptionHandler(InvalidFieldValueException.class)
     public ResponseEntity<String> handleInvalidValues(InvalidFieldValueException ex) {
@@ -27,8 +27,8 @@ public class GlobalExceptionHandler {
      * handles all exceptions caused by attempts to execute operations
      * forbidden due to the resources state
      *
-     * @param ex - throwed exception
-     * @return
+     * @param ex - thrown exception
+     * @return a formated error message
      */
     @ExceptionHandler(InvalidOperationException.class)
     public ResponseEntity<String> handleInvalidOperation(InvalidOperationException ex) {
@@ -38,8 +38,8 @@ public class GlobalExceptionHandler {
     /**
      * handles all exceptions related with failed resource selection
      *
-     * @param ex - throwed exception
-     * @return
+     * @param ex - thrown exception
+     * @return a formated error message
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFound(ResourceNotFoundException ex) {
