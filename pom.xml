@@ -12,7 +12,7 @@
 	<artifactId>devicesapi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>devicesapi</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Device API demo project on Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
