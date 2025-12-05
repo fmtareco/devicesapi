@@ -2,7 +2,7 @@ spring:
   application:
     name: devicesapi
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:devices_db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:devices_database}
     username: ${DB_USER:postgres}
     password: ${DB_PASS:postgres}
   jpa:

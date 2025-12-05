@@ -3,7 +3,7 @@ services:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_DB: devices_db
+      POSTGRES_DB: devices_database
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
@@ -27,6 +27,20 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  devices-api:
+    image:  fmtareco/devices-api:latest
+    container_name: devices-api
+    ports:
+      - "8080:8080"
+    networks:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: devices_db
+    depends_on:
+      - database
 networks:
   postgres:
     driver: bridge
