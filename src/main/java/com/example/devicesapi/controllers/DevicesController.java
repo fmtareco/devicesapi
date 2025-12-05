@@ -3,6 +3,7 @@ package com.example.devicesapi.controllers;
 import com.example.devicesapi.dtos.DeviceCreateRequest;
 import com.example.devicesapi.dtos.DeviceResponse;
 import com.example.devicesapi.dtos.DeviceUpdateRequest;
+import com.example.devicesapi.services.DevicesService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +18,23 @@ import java.util.UUID;
 public class DevicesController {
 
     /**
+     * Dependency injection of the services
+     *
+     */
+    private final DevicesService svc;
+
+    public DevicesController(DevicesService svc) {
+        this.svc = svc;
+    }
+
+
+    /**
      * POST - Creates a new device
      * @return DeviceResponse with the new device content
      */
     @PostMapping
     public ResponseEntity<DeviceResponse> create(@Valid @RequestBody DeviceCreateRequest req) {
-        var created = DeviceResponse.builder()
-                .id(UUID.randomUUID())
-                .name("dummy device")
-                .brand("dummy brand")
-                .state("AVAILABLE")
-                .build();
+        var created = svc.create(req);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -39,12 +46,7 @@ public class DevicesController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<DeviceResponse> replace(@PathVariable UUID id, @Valid @RequestBody DeviceUpdateRequest req) {
-        var updated = DeviceResponse.builder()
-                .id(UUID.randomUUID())
-                .name("dummy device alt")
-                .brand("dummy brand alt")
-                .state("IN_USE")
-                .build();
+        var updated = svc.update(id, req, false);
         return ResponseEntity.ok(updated);
     }
 
@@ -56,12 +58,7 @@ public class DevicesController {
      */
     @PatchMapping("/{id}")
     public ResponseEntity<DeviceResponse> partialUpdate(@PathVariable UUID id, @RequestBody DeviceUpdateRequest req) {
-        var updated = DeviceResponse.builder()
-                .id(UUID.randomUUID())
-                .name("dummy device alt")
-                .brand("dummy brand alt")
-                .state("IN_USE")
-                .build();
+        var updated = svc.update(id, req, true);
         return ResponseEntity.ok(updated);
     }
 
@@ -72,13 +69,7 @@ public class DevicesController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<DeviceResponse> getOne(@PathVariable UUID id) {
-        var fetched = DeviceResponse.builder()
-                .id(UUID.randomUUID())
-                .name("dummy device selected")
-                .brand("dummy brand selected")
-                .state("INACTIVE")
-                .build();
-        return ResponseEntity.ok(fetched);
+        return ResponseEntity.ok(svc.getOne(id));
     }
 
     /**
@@ -89,18 +80,7 @@ public class DevicesController {
      */
     @GetMapping
     public ResponseEntity<List<DeviceResponse>> getAll(@RequestParam(required = false) String brand, @RequestParam(required = false) String state) {
-        List<DeviceResponse> devicesList = new ArrayList<>();
-        DeviceResponse dr;
-        for (int i = 0; i < 5 ; i++) {
-            dr = DeviceResponse.builder()
-                    .id(UUID.randomUUID())
-                    .name("device %d".formatted(i))
-                    .brand("brand %d".formatted(i))
-                    .state("AVAILABLE")
-                    .build();
-            devicesList.add(dr);
-        }
-        return ResponseEntity.ok(devicesList);
+        return ResponseEntity.ok(svc.getAll(brand, state));
     }
 
     /**
@@ -110,5 +90,6 @@ public class DevicesController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
+        svc.delete(id);
     }
 }

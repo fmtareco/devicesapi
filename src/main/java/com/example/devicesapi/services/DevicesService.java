@@ -35,6 +35,10 @@ public class DevicesService {
         this.repo = repo;
     }
 
+    //---------------------------------------------------------------------------------------//
+    //                              public life cycle methods                                //
+    //---------------------------------------------------------------------------------------//
+
     /**
      * Creates a new Device, based on the values of the input DeviceCreateRequest
      * first it validates if the State value is valid and
