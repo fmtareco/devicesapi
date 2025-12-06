@@ -12,6 +12,8 @@ import com.example.devicesapi.exceptions.InvalidDeleteException;
 import com.example.devicesapi.exceptions.InvalidDuplicatedValuesException;
 import com.example.devicesapi.exceptions.InvalidNullValueException;
 import com.example.devicesapi.repository.DevicesRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -27,13 +29,18 @@ public class DevicesService {
     /**
      * Dependency injection of the repository
      *
-     * @param repo
      */
     private final DevicesRepository repo;
 
     public DevicesService(DevicesRepository repo) {
         this.repo = repo;
     }
+
+    /**
+     * Logging support
+     */
+    private static final Logger log = LoggerFactory.getLogger(DevicesService.class);
+
 
     //---------------------------------------------------------------------------------------//
     //                              public life cycle methods                                //
@@ -47,7 +54,7 @@ public class DevicesService {
      * At the end, saves the Device on the db, through the repo
      *
      * @param req - DataCreateRequest with the provided values for the new device
-     * @return DeviceResponse with the new Device contet
+     * @return DeviceResponse with the new Device content
      */
     @Transactional
     public DeviceResponse create(DeviceCreateRequest req) {
@@ -61,6 +68,8 @@ public class DevicesService {
             .createdAt(OffsetDateTime.now())
             .build();
         Device saved = repo.save(device);
+        log.info("Device created: id={}, brand={}, state={}",
+                device.getId(), device.getBrand(), device.getState());
         return toDto(saved);
     }
 
@@ -81,32 +90,34 @@ public class DevicesService {
      */
     @Transactional
     public DeviceResponse update(UUID id, DeviceUpdateRequest req, boolean partial) {
-        Device dev = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
+        Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
         String newName = req.getName();
         String newBrand = req.getBrand();
-        boolean reqNewName = !ObjectUtils.isEmpty(newName)&&!dev.getName().equals(newName);
-        boolean reqNewBrand = !ObjectUtils.isEmpty(newBrand)&&!dev.getBrand().equals(req.getBrand());
+        boolean reqNewName = !ObjectUtils.isEmpty(newName)&&!device.getName().equals(newName);
+        boolean reqNewBrand = !ObjectUtils.isEmpty(newBrand)&&!device.getBrand().equals(req.getBrand());
         if (reqNewName||reqNewBrand) {
             String ckName = newName, ckBrand = newBrand;
             if (partial) {
-                ckName=!ObjectUtils.isEmpty(newName)?newName:dev.getName();
-                ckBrand=!ObjectUtils.isEmpty(newBrand)?newBrand:dev.getBrand();
+                ckName=!ObjectUtils.isEmpty(newName)?newName:device.getName();
+                ckBrand=!ObjectUtils.isEmpty(newBrand)?newBrand:device.getBrand();
             }
-            checkDeviceDuplicates(dev, ckName,ckBrand);
+            checkDeviceDuplicates(device, ckName,ckBrand);
         }
         if (!partial || reqNewName)
-            dev.updateName(newName);
+            device.updateName(newName);
         if (!partial || reqNewBrand)
-            dev.updateBrand(newBrand);
+            device.updateBrand(newBrand);
         String newState = req.getState();
         if (!partial || !ObjectUtils.isEmpty(newState))
-            dev.updateState(newState);
-        Device saved = repo.save(dev);
+            device.updateState(newState);
+        Device saved = repo.save(device);
+        log.info("Device updated: id={}, brand={}, state={}",
+                device.getId(), device.getBrand(), device.getState());
         return toDto(saved);
     }
 
     /**
-     * fetches an existent device, from the input it
+     * fetches an existent device, from the input
      * It locates the device through the id and
      * if found, returns its content
      *
@@ -115,8 +126,10 @@ public class DevicesService {
      */
     @Transactional(readOnly = true)
     public DeviceResponse getOne(UUID id) {
-        Device d = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
-        return toDto(d);
+        Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
+        log.info("Device located: id={}, brand={}, state={}",
+                device.getId(), device.getBrand(), device.getState());
+        return toDto(device);
     }
 
     /**
@@ -129,12 +142,15 @@ public class DevicesService {
     @Transactional(readOnly = true)
     public List<DeviceResponse> getAll(String brand, String state) {
         if (brand != null) {
+            log.info("Select devices by brand={}",brand);
             return getByBrand(brand);
         }
         if (state != null) {
+            log.info("Select devices by state={}",state);
             State stateValue = Device.getDeviceStateValue(state);
             return getByState(stateValue);
         }
+        log.info("Select all devices");
         return repo.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
@@ -160,15 +176,19 @@ public class DevicesService {
 
     /**
      * fetches an existent device, from the input it
-     * First It locates the device and checks if it can be delete (not on Lock state)
+     * First It locates the device and checks if it can be deleted (not on Lock state)
      * @param id - id of the device to be updated
      */
     @Transactional
     public void delete(UUID id) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
         if (device.isLocked()) {
+            log.info("Failed device delete: id={}, brand={}, state={}",
+                    device.getId(), device.getBrand(), device.getState());
             throw new InvalidDeleteException(id);
         }
+        log.info("Device deleted: id={}, brand={}, state={}",
+                device.getId(), device.getBrand(), device.getState());
         repo.delete(device);
     }
 
@@ -179,16 +199,16 @@ public class DevicesService {
     /**
      * to convert the created/updated/selected Device to a
      * DeviceResponse to return to the API caller
-     * @param d - the device to be converted
-     * @return
+     * @param device - the device to be converted
+     * @return DeviceResponse
      */
-    private DeviceResponse toDto(Device d) {
+    private DeviceResponse toDto(Device device) {
         return DeviceResponse.builder()
-            .id(d.getId())
-            .brand(d.getBrand())
-                .name(d.getName())
-                .state(d.getState().name())
-                .createdAt(d.getCreatedAt())
+            .id(device.getId())
+            .brand(device.getBrand())
+                .name(device.getName())
+                .state(device.getState().name())
+                .createdAt(device.getCreatedAt())
                 .build();
     }
 
@@ -199,11 +219,10 @@ public class DevicesService {
      * @return the located device or null
      */
     private Device locateDevice(String name, String brand) {
-        Device dev = repo.findAll().stream()
+        return repo.findAll().stream()
                 .filter(d-> d.getName().equals(name) && d.getBrand().equals(brand))
                 .findAny()
                 .orElse(null);
-        return dev;
     }
 
     /**

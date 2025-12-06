@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+
+    <!-- General logging level -->
+    <property name="LOG_LEVEL" value="INFO"/>
+
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- Add common fields to every log message -->
+            <customFields>{"app":"device-api","env":"local"}</customFields>
+        </encoder>
+    </appender>
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/device-api.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/device-api.%d{yyyy-MM-dd}.json</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <!-- Application loggers -->
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="JSON_CONSOLE"/>
+         <appender-ref ref="JSON_FILE"/>
+    </root>
+
+</configuration>
