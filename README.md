@@ -20,8 +20,19 @@
    ```bash
    docker compose up -d
    ```
+5. Configure Postgres server
 
-5. Using an API testing platform (e.g., Postman), test the main endpoint:
+Launch pgAdmin:
+http://localhost:5050/browser/
+
+- provide a master password 
+- create a new Server:
+- General/name: devices_server (example)
+- Connection/Host name: postgres
+- Connection/username: postgres
+- Connection/password: postgres
+
+6. Using an API testing platform (e.g., Postman), test the main endpoint:
    ```
    http://localhost:8080/api/devices
    ```
