@@ -53,7 +53,8 @@ This project provides a REST API for managing *Device* resources, supporting ful
 - Default configuration is found in `application.yaml`.
 
 ### Persistence
-- The application relies on Hibernate’s auto-ddl (`spring.jpa.hibernate.ddl-auto=update`).
+- Database schema is managed through versioned SQL scripts under src/main/resources/db/migration. 
+- Flyway ensures consistent deployments across environments.
 
 ---
 
