@@ -246,16 +246,11 @@ class DeviceControllerTest {
      * @param value - optional parameter value to filter the returned set of devices
      */
     void testFetchDevices(String method, String param, String value) {
-        String uri = baseUrl ;
         String msg = "Total devices";
         if (!ObjectUtils.isEmpty(param)) {
-            uri+= "?"+param+"="+value;
             msg += " of " +  param + "="+value;
         }
-        Device[] payload = restClient.get()
-                .uri(uri)
-                .retrieve()
-                .body(Device[].class);
+        Device[] payload = fetchExistingDevices(param, value);
         int numDevices=0;
         if (payload != null) {
             numDevices = payload.length;
@@ -327,10 +322,7 @@ class DeviceControllerTest {
      */
     void testDeleteDevice(String method, DeviceResponse dr) {
         try {
-            restClient.delete()
-                    .uri(baseUrl + "/{id}", dr.getId() )
-                    .retrieve()
-                    .toBodilessEntity();
+            deleteDevice(dr.getId());
             traceTestSummary(method, true, "["+dr.getId()+"]");
             System.out.println("["+dr.getName()+","+dr.getBrand()+","+dr.getState()+"]");
         } catch (Exception e) {
@@ -527,5 +519,36 @@ class DeviceControllerTest {
         return args.stream();
     }
 
+
+    /**
+     * generic method to fetch the existing devices
+     *
+     * @param param - optional parameter name to filter the returned set of devices
+     * @param value - optional parameter value to filter the returned set of devices
+     * @return list of devices
+     */
+    Device[] fetchExistingDevices(String param, String value) {
+        String uri = baseUrl ;
+        if (!ObjectUtils.isEmpty(param)) {
+            uri+= "?"+param+"="+value;
+        }
+        Device[] devicesLst = restClient.get()
+                .uri(uri)
+                .retrieve()
+                .body(Device[].class);
+        return devicesLst;
+    }
+
+    /**
+     * generic method to delete a single device
+     *
+     * @param id - UUID of the device to be deleted
+     */
+    void deleteDevice(UUID id) {
+        restClient.delete()
+                .uri(baseUrl + "/{id}", id )
+                .retrieve()
+                .toBodilessEntity();
+    }
 
 }
