@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+
+import static com.example.devicesapi.dtos.DeviceCreateRequest.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -272,7 +274,7 @@ class DeviceControllerTest {
      */
     void testCreateDevice(String method, String name, String brand, String state) {
         try {
-            DeviceCreateRequest dcr = DeviceCreateRequest.builder()
+            DeviceCreateRequest dcr = builder()
                     .name(name)
                     .brand(brand)
                     .state(state)
@@ -284,7 +286,7 @@ class DeviceControllerTest {
                     .retrieve()
                     .body(DeviceResponse.class);
             traceTestSummary(method, true, "["+name+","+brand+","+state+"]");
-            System.out.println(dr.getId());
+            System.out.println(dr.id());
             createdDevices.add(dr);
         } catch (Exception e) {
             traceTestSummary(method, false, "["+name+","+brand+","+state+"]");
@@ -301,15 +303,15 @@ class DeviceControllerTest {
     void testFindDevice(String method, DeviceResponse dr) {
         try {
             DeviceResponse retDr =  restClient.get()
-                    .uri(baseUrl + "/{id}", dr.getId() )
+                    .uri(baseUrl + "/{id}", dr.id() )
                     .retrieve()
                     .body(DeviceResponse.class);
-            traceTestSummary(method, true, "["+dr.getId()+"]");
-            System.out.println("["+retDr.getId()+"]");
-            System.out.println("["+retDr.getName()+","+retDr.getBrand()+","+retDr.getState()+"]");
+            traceTestSummary(method, true, "["+dr.id()+"]");
+            System.out.println("["+retDr.id()+"]");
+            System.out.println("["+retDr.name()+","+retDr.brand()+","+retDr.state()+"]");
         } catch (Exception e) {
-            traceTestSummary(method, false, "["+dr.getId()+"]");
-            System.out.println("["+dr.getName()+","+dr.getBrand()+","+dr.getState()+"]");
+            traceTestSummary(method, false, "["+dr.id()+"]");
+            System.out.println("["+dr.name()+","+dr.brand()+","+dr.state()+"]");
             System.out.println(e.getMessage());
         }
     }
@@ -322,12 +324,12 @@ class DeviceControllerTest {
      */
     void testDeleteDevice(String method, DeviceResponse dr) {
         try {
-            deleteDevice(dr.getId());
-            traceTestSummary(method, true, "["+dr.getId()+"]");
-            System.out.println("["+dr.getName()+","+dr.getBrand()+","+dr.getState()+"]");
+            deleteDevice(dr.id());
+            traceTestSummary(method, true, "["+dr.id()+"]");
+            System.out.println("["+dr.name()+","+dr.brand()+","+dr.state()+"]");
         } catch (Exception e) {
-            traceTestSummary(method, false, "["+dr.getId()+"]");
-            System.out.println("["+dr.getName()+","+dr.getBrand()+","+dr.getState()+"]");
+            traceTestSummary(method, false, "["+dr.id()+"]");
+            System.out.println("["+dr.name()+","+dr.brand()+","+dr.state()+"]");
             System.out.println(e.getMessage());
         }
     }
@@ -433,7 +435,7 @@ class DeviceControllerTest {
         List<Arguments> args = new ArrayList<>();
         if (createdDevices.isEmpty())
             return args.stream();
-        UUID id = createdDevices.getFirst().getId();
+        UUID id = createdDevices.getFirst().id();
         args.add(Arguments.of(id, null, null, null));
         List<String> models = new ArrayList<>();
         models.add("");
@@ -469,7 +471,7 @@ class DeviceControllerTest {
         if (createdDevices.isEmpty())
             return args.stream();
         DeviceResponse dr=createdDevices.getFirst();
-        UUID id = dr.getId();
+        UUID id = dr.id();
         List<String> models = new ArrayList<>();
         for(Models mdl : Models.values()) {
             models.add(mdl.toString());
@@ -483,8 +485,8 @@ class DeviceControllerTest {
                 args.add(Arguments.of(id, model, brand, Device.State.AVAILABLE.toString()));
             }
         }
-        String model =dr.getName();
-        String brand = dr.getBrand();
+        String model =dr.name();
+        String brand = dr.brand();
         args.add(Arguments.of(id, model, brand, Device.State.AVAILABLE.toString()));
         args.add(Arguments.of(id, model, brand, "UnknowState"));
         args.add(Arguments.of(id, model, brand, Device.State.IN_USE.toString()));
@@ -502,7 +504,7 @@ class DeviceControllerTest {
     private static Stream<Arguments> provideValuesForUpdateLock() {
         List<Arguments> args = new ArrayList<>();
         for (DeviceResponse dr : createdDevices) {
-            args.add(Arguments.of(dr.getId(), null, null, Device.State.IN_USE.toString()));
+            args.add(Arguments.of(dr.id(), null, null, Device.State.IN_USE.toString()));
         }
         return args.stream();
     }
@@ -514,7 +516,7 @@ class DeviceControllerTest {
     private static Stream<Arguments> provideValuesForUpdateUnlock() {
         List<Arguments> args = new ArrayList<>();
         for (DeviceResponse dr : createdDevices) {
-            args.add(Arguments.of(dr.getId(), null, null, Device.State.AVAILABLE.toString()));
+            args.add(Arguments.of(dr.id(), null, null, Device.State.AVAILABLE.toString()));
         }
         return args.stream();
     }

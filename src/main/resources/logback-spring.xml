@@ -21,7 +21,7 @@
     <!-- Application loggers -->
     <root level="${LOG_LEVEL}">
         <appender-ref ref="JSON_CONSOLE"/>
-         <appender-ref ref="JSON_FILE"/>
+        <appender-ref ref="JSON_FILE"/>
     </root>
 
 </configuration>

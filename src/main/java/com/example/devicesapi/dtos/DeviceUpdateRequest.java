@@ -17,5 +17,4 @@ public class DeviceUpdateRequest {
     private String name;
     private String brand;
     private String state;
-
 }
