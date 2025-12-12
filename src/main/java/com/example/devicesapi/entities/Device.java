@@ -32,7 +32,7 @@ public class Device {
     @Column(nullable = false)
     private State state;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "creation_time", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
     public enum State {

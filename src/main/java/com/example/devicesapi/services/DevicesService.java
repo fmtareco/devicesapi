@@ -2,6 +2,7 @@ package com.example.devicesapi.services;
 
 
 
+import com.example.devicesapi.annotations.TrackExecution;
 import com.example.devicesapi.dtos.DeviceCreateRequest;
 import com.example.devicesapi.dtos.DeviceResponse;
 import com.example.devicesapi.dtos.DeviceUpdateRequest;
@@ -57,6 +58,7 @@ public class DevicesService {
      * @return DeviceResponse with the new Device content
      */
     @Transactional
+    @TrackExecution
     public DeviceResponse create(DeviceCreateRequest req) {
         State stateValue = Device.getDeviceStateValue(req.getState());
         checkDeviceIdentification(req.getName(),req.getBrand());
@@ -68,8 +70,8 @@ public class DevicesService {
             .createdAt(OffsetDateTime.now())
             .build();
         Device saved = repo.save(device);
-        log.info("Device created: id={}, brand={}, state={}",
-                device.getId(), device.getBrand(), device.getState());
+//        log.info("Device created: id={}, brand={}, state={}",
+//                device.getId(), device.getBrand(), device.getState());
         return toDto(saved);
     }
 
@@ -89,6 +91,7 @@ public class DevicesService {
      * @return DeviceResponse with the updated Device content
      */
     @Transactional
+    @TrackExecution
     public DeviceResponse update(UUID id, DeviceUpdateRequest req, boolean partial) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
         String newName = req.getName();
@@ -111,8 +114,8 @@ public class DevicesService {
         if (!partial || !ObjectUtils.isEmpty(newState))
             device.updateState(newState);
         Device saved = repo.save(device);
-        log.info("Device updated: id={}, brand={}, state={}",
-                device.getId(), device.getBrand(), device.getState());
+//        log.info("Device updated: id={}, brand={}, state={}",
+//                device.getId(), device.getBrand(), device.getState());
         return toDto(saved);
     }
 
@@ -125,10 +128,11 @@ public class DevicesService {
      * @return DeviceResponse with the selected Device content
      */
     @Transactional(readOnly = true)
+    @TrackExecution
     public DeviceResponse getOne(UUID id) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
-        log.info("Device located: id={}, brand={}, state={}",
-                device.getId(), device.getBrand(), device.getState());
+//        log.info("Device located: id={}, brand={}, state={}",
+//                device.getId(), device.getBrand(), device.getState());
         return toDto(device);
     }
 
@@ -140,17 +144,18 @@ public class DevicesService {
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @Transactional(readOnly = true)
+    @TrackExecution
     public List<DeviceResponse> getAll(String brand, String state) {
         if (brand != null) {
-            log.info("Select devices by brand={}",brand);
+            //log.info("Select devices by brand={}",brand);
             return getByBrand(brand);
         }
         if (state != null) {
-            log.info("Select devices by state={}",state);
+            //log.info("Select devices by state={}",state);
             State stateValue = Device.getDeviceStateValue(state);
             return getByState(stateValue);
         }
-        log.info("Select all devices");
+        //log.info("Select all devices");
         return repo.findAll().stream().map(this::toDto).collect(Collectors.toList());
     }
 
@@ -160,6 +165,7 @@ public class DevicesService {
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @Transactional(readOnly = true)
+    @TrackExecution
     public List<DeviceResponse> getByBrand(String brand) {
         return repo.findByBrand(brand).stream().map(this::toDto).collect(Collectors.toList());
     }
@@ -170,6 +176,7 @@ public class DevicesService {
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @Transactional(readOnly = true)
+    @TrackExecution
     public List<DeviceResponse> getByState(State state) {
         return repo.findByState(state).stream().map(this::toDto).collect(Collectors.toList());
     }
@@ -180,15 +187,16 @@ public class DevicesService {
      * @param id - id of the device to be updated
      */
     @Transactional
+    @TrackExecution
     public void delete(UUID id) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
         if (device.isLocked()) {
-            log.info("Failed device delete: id={}, brand={}, state={}",
-                    device.getId(), device.getBrand(), device.getState());
+//            log.info("Failed device delete: id={}, brand={}, state={}",
+//                    device.getId(), device.getBrand(), device.getState());
             throw new InvalidDeleteException(id);
         }
-        log.info("Device deleted: id={}, brand={}, state={}",
-                device.getId(), device.getBrand(), device.getState());
+//        log.info("Device deleted: id={}, brand={}, state={}",
+//                device.getId(), device.getBrand(), device.getState());
         repo.delete(device);
     }
 
