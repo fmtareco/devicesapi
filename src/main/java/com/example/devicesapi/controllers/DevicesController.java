@@ -88,6 +88,17 @@ public class DevicesController {
             @RequestParam(value = "page", defaultValue = "0" ) int page,
             @RequestParam(value = "size", defaultValue = "10" ) int size,
             @RequestParam(defaultValue = "true") boolean ascending) {
+        Sort sort = getSort(ascending);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(svc.getAll(name, brand, state, pageable));
+    }
+
+    /**
+     * return the Sort criteria
+     * @param ascending - indicates the input sort direction
+     * @return Sort criteria
+     */
+    private Sort getSort(boolean ascending) {
         Sort.Direction direction = ascending ?
                 Sort.Direction.ASC:
                 Sort.Direction.DESC;
@@ -96,9 +107,7 @@ public class DevicesController {
         orders.add(brandOrder);
         Sort.Order nameOrder = new Sort.Order(direction, "name");
         orders.add(nameOrder);
-        Sort sort = Sort.by(orders);
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(svc.getAll(name, brand, state, pageable));
+        return Sort.by(orders);
     }
 
     /**

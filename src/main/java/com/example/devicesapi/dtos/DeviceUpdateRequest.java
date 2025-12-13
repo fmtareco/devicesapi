@@ -11,9 +11,8 @@ import lombok.Data;
  * - all others fields nullable (to allow partial updates)
  */
 @Builder
-@Data
-public class DeviceUpdateRequest {
-    private String name;
-    private String brand;
-    private String state;
-}
+public record DeviceUpdateRequest(
+    String name,
+    String brand,
+    String state
+){}

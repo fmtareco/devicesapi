@@ -274,7 +274,7 @@ class DeviceControllerTest {
      */
     void testCreateDevice(String method, String name, String brand, String state) {
         try {
-            DeviceCreateRequest dcr = builder()
+            DeviceCreateRequest dcr = DeviceCreateRequest.builder()
                     .name(name)
                     .brand(brand)
                     .state(state)

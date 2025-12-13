@@ -53,10 +53,10 @@ public class DevicesService {
     @Transactional
     @TrackExecution
     public DeviceResponse create(DeviceCreateRequest req) {
-        State stateValue = Device.getDeviceStateValue(req.getState());
-        checkDeviceIdentification(req.getName(),req.getBrand());
+        State stateValue = Device.getDeviceStateValue(req.state());
+        checkDeviceIdentification(req.name(),req.brand());
         Device device = repo.save(
-                Device.createDevice(req.getName(), req.getBrand(), stateValue));
+                Device.createDevice(req.name(), req.brand(), stateValue));
         return toDto(device);
     }
 
@@ -79,10 +79,10 @@ public class DevicesService {
     @TrackExecution
     public DeviceResponse update(UUID id, DeviceUpdateRequest req, boolean partial) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
-        String newName = req.getName();
-        String newBrand = req.getBrand();
+        String newName = req.name();
+        String newBrand = req.brand();
         boolean reqNewName = !ObjectUtils.isEmpty(newName)&&!device.getName().equals(newName);
-        boolean reqNewBrand = !ObjectUtils.isEmpty(newBrand)&&!device.getBrand().equals(req.getBrand());
+        boolean reqNewBrand = !ObjectUtils.isEmpty(newBrand)&&!device.getBrand().equals(req.brand());
         if (reqNewName||reqNewBrand) {
             String ckName = newName, ckBrand = newBrand;
             if (partial) {
@@ -95,7 +95,7 @@ public class DevicesService {
             device.updateName(newName);
         if (!partial || reqNewBrand)
             device.updateBrand(newBrand);
-        String newState = req.getState();
+        String newState = req.state();
         if (!partial || !ObjectUtils.isEmpty(newState))
             device.updateState(newState);
         Device saved = repo.save(device);
@@ -194,10 +194,6 @@ public class DevicesService {
         return repo.findDeviceByNameAndBrand(name, brand).stream()
                 .findAny()
                 .orElse(null);
-//        return repo.findAll().stream()
-//                .filter(d-> d.getName().equals(name) && d.getBrand().equals(brand))
-//                .findAny()
-//                .orElse(null);
     }
 
     /**

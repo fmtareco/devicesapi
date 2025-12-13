@@ -67,7 +67,7 @@ public class Device {
     /**
      * (tries to) update the device name
      * depends on the lock state and the new name value
-     * @param _name
+     * @param _name : new name
      */
     public void updateName(String _name) {
         checkUpdateAllowed("name", _name);
@@ -87,7 +87,7 @@ public class Device {
     /**
      * validates the state text confronted to the enum values
      * if it is invalid throws an exception
-     * @param _state
+     * @param _state: new state
      * @return
      */
     public static State getDeviceStateValue(String _state) {
