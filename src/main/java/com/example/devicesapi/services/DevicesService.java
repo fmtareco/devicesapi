@@ -56,15 +56,9 @@ public class DevicesService {
     public DeviceResponse create(DeviceCreateRequest req) {
         State stateValue = Device.getDeviceStateValue(req.getState());
         checkDeviceIdentification(req.getName(),req.getBrand());
-        Device device = Device.builder()
-            .id(UUID.randomUUID())
-            .name(req.getName())
-            .brand(req.getBrand())
-            .state(stateValue)
-            .createdAt(OffsetDateTime.now())
-            .build();
-        Device saved = repo.save(device);
-        return toDto(saved);
+        Device device = repo.save(
+                Device.createDevice(req.getName(), req.getBrand(), stateValue));
+        return toDto(device);
     }
 
     /**
@@ -135,9 +129,12 @@ public class DevicesService {
      */
     @Transactional(readOnly = true)
     @TrackExecution
-    public List<DeviceResponse> getAll(String brand, String stateStr, Pageable pageable) {
+    public List<DeviceResponse> getAll(String name, String brand, String stateStr, Pageable pageable) {
         State state = stateStr != null?
                 Device.getDeviceStateValue(stateStr) : State.AVAILABLE;
+        if (name != null) {
+            return repo.findAll(byFlexibleSearch(name, brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
+        }
         if (brand != null && stateStr != null) {
             return repo.findAll(byBrandAndState(brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
         }
@@ -195,10 +192,13 @@ public class DevicesService {
      * @return the located device or null
      */
     private Device locateDevice(String name, String brand) {
-        return repo.findAll().stream()
-                .filter(d-> d.getName().equals(name) && d.getBrand().equals(brand))
+        return repo.findDeviceByNameAndBrand(name, brand).stream()
                 .findAny()
                 .orElse(null);
+//        return repo.findAll().stream()
+//                .filter(d-> d.getName().equals(name) && d.getBrand().equals(brand))
+//                .findAny()
+//                .orElse(null);
     }
 
     /**

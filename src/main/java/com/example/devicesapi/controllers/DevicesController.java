@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,16 +82,23 @@ public class DevicesController {
      */
     @GetMapping
     public ResponseEntity<List<DeviceResponse>> getAll(
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String state,
             @RequestParam(value = "page", defaultValue = "0" ) int page,
-            @RequestParam(value = "size", defaultValue = "5" ) int size,
+            @RequestParam(value = "size", defaultValue = "10" ) int size,
             @RequestParam(defaultValue = "true") boolean ascending) {
-        Sort sort = ascending ?
-                Sort.by("name").ascending() :
-                Sort.by("name").descending();
+        Sort.Direction direction = ascending ?
+                Sort.Direction.ASC:
+                Sort.Direction.DESC;
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        Sort.Order brandOrder = new Sort.Order(direction, "brand");
+        orders.add(brandOrder);
+        Sort.Order nameOrder = new Sort.Order(direction, "name");
+        orders.add(nameOrder);
+        Sort sort = Sort.by(orders);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(svc.getAll(brand, state, pageable));
+        return ResponseEntity.ok(svc.getAll(name, brand, state, pageable));
     }
 
     /**

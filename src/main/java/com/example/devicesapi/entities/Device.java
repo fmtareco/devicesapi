@@ -107,4 +107,17 @@ public class Device {
         setState(getDeviceStateValue(_state));
     }
 
+    public static Device createDevice(String _name, String _brand) {
+        return createDevice(_name,_brand, State.AVAILABLE);
+    }
+    public static Device createDevice(String _name, String _brand, State _state) {
+        return Device.builder()
+                .id(UUID.randomUUID())
+                .name(_name)
+                .brand(_brand)
+                .state(_state)
+                .createdAt(OffsetDateTime.now())
+                .build();
+    }
+
 }
