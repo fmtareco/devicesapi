@@ -22,7 +22,9 @@ public interface DevicesRepository extends
 
     List<Device> findDeviceByNameAndBrand(String name, String brand);
 
-    static Specification<Device> byFilters(Optional<String> name, Optional<String> brand, Optional<String> state) {
+    static Specification<Device> byFilters(Optional<String> name,
+                                           Optional<String> brand,
+                                           Optional<String> state) {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
             name.filter(n -> !n.isBlank())
