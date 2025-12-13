@@ -1,6 +1,7 @@
 package com.example.devicesapi.controllers;
 
 import com.example.devicesapi.dtos.DeviceCreateRequest;
+import com.example.devicesapi.dtos.DevicePatchRequest;
 import com.example.devicesapi.dtos.DeviceResponse;
 import com.example.devicesapi.dtos.DeviceUpdateRequest;
 import com.example.devicesapi.services.DevicesService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -48,7 +50,7 @@ public class DevicesController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<DeviceResponse> replace(@PathVariable UUID id, @Valid @RequestBody DeviceUpdateRequest req) {
-        var updated = svc.update(id, req, false);
+        var updated = svc.update(id, req);
         return ResponseEntity.ok(updated);
     }
 
@@ -59,8 +61,8 @@ public class DevicesController {
      * @return DeviceResponse with the update device content
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<DeviceResponse> partialUpdate(@PathVariable UUID id, @RequestBody DeviceUpdateRequest req) {
-        var updated = svc.update(id, req, true);
+    public ResponseEntity<DeviceResponse> partialUpdate(@PathVariable UUID id, @RequestBody DevicePatchRequest req) {
+        var updated = svc.partialUpdate(id, req);
         return ResponseEntity.ok(updated);
     }
 
@@ -90,7 +92,12 @@ public class DevicesController {
             @RequestParam(defaultValue = "true") boolean ascending) {
         Sort sort = getSort(ascending);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return ResponseEntity.ok(svc.getAll(name, brand, state, pageable));
+        return ResponseEntity.ok(
+                svc.getAll(
+                        Optional.ofNullable(name),
+                        Optional.ofNullable(brand),
+                        Optional.ofNullable(state),
+                        pageable));
     }
 
     /**

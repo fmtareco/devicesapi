@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.example.devicesapi.dtos.DeviceCreateRequest.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -95,7 +94,7 @@ class DeviceControllerTest {
     @ParameterizedTest
     @MethodSource("provideValuesForCreation")
     void createNewDevice( String name, String brand, String state) {
-        testCreateDevice("createNewDevice", name, brand, state);
+        testCreate("createNewDevice", name, brand, state);
     }
 
     /**
@@ -272,7 +271,7 @@ class DeviceControllerTest {
      * @param brand - brand of the device to be created
      * @param state - state of the device to be created
      */
-    void testCreateDevice(String method, String name, String brand, String state) {
+    void testCreate(String method, String name, String brand, String state) {
         try {
             DeviceCreateRequest dcr = DeviceCreateRequest.builder()
                     .name(name)

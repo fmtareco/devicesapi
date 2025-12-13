@@ -3,6 +3,7 @@ package com.example.devicesapi.services;
 
 import com.example.devicesapi.annotations.TrackExecution;
 import com.example.devicesapi.dtos.DeviceCreateRequest;
+import com.example.devicesapi.dtos.DevicePatchRequest;
 import com.example.devicesapi.dtos.DeviceResponse;
 import com.example.devicesapi.dtos.DeviceUpdateRequest;
 import com.example.devicesapi.entities.Device;
@@ -15,13 +16,13 @@ import com.example.devicesapi.repository.DevicesRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.example.devicesapi.repository.DevicesRepository.Specs.*;
+import static com.example.devicesapi.repository.DevicesRepository.*;
 
 @Service
 public class DevicesService {
@@ -53,53 +54,58 @@ public class DevicesService {
     @Transactional
     @TrackExecution
     public DeviceResponse create(DeviceCreateRequest req) {
-        State stateValue = Device.getDeviceStateValue(req.state());
-        checkDeviceIdentification(req.name(),req.brand());
+        validateIdentification(req.name(),req.brand());
+        State state = Device.State.from(req.state());
         Device device = repo.save(
-                Device.createDevice(req.name(), req.brand(), stateValue));
+                Device.create(req.name(), req.brand(), state));
         return toDto(device);
     }
 
     /**
-     * Updates an existent device, either partially or fully
-     * First, it locates the device through the id
-     * If found, it validates all input values, depending on the update mode (partial or full)
-     * - on full mode, all field values are required:
-     *      checks for null or duplicates on id
-     *      checks if the provided state is valid
-     *  - on partial mode, ignores null values
+     * Fully Updates an existent device
      * At the end, saves the Device on the db, through the repo
      *
      * @param id - id of the device to be updated
      * @param req - DeviceUpdateRequest with the provided values for the update
-     * @param partial - indicates whether the update is partial or full
      * @return DeviceResponse with the updated Device content
      */
-    @Transactional
     @TrackExecution
-    public DeviceResponse update(UUID id, DeviceUpdateRequest req, boolean partial) {
-        Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
-        String newName = req.name();
-        String newBrand = req.brand();
-        boolean reqNewName = !ObjectUtils.isEmpty(newName)&&!device.getName().equals(newName);
-        boolean reqNewBrand = !ObjectUtils.isEmpty(newBrand)&&!device.getBrand().equals(req.brand());
-        if (reqNewName||reqNewBrand) {
-            String ckName = newName, ckBrand = newBrand;
-            if (partial) {
-                ckName=!ObjectUtils.isEmpty(newName)?newName:device.getName();
-                ckBrand=!ObjectUtils.isEmpty(newBrand)?newBrand:device.getBrand();
-            }
-            checkDeviceDuplicates(device, ckName,ckBrand);
-        }
-        if (!partial || reqNewName)
-            device.updateName(newName);
-        if (!partial || reqNewBrand)
-            device.updateBrand(newBrand);
-        String newState = req.state();
-        if (!partial || !ObjectUtils.isEmpty(newState))
-            device.updateState(newState);
-        Device saved = repo.save(device);
-        return toDto(saved);
+    public DeviceResponse update(UUID id, DeviceUpdateRequest req) {
+        var device = findDevice(id);
+        validateDuplicates(device, req.name(), req.brand());
+        device.updateName(req.name());
+        device.updateBrand(req.brand());
+        device.updateState(req.state());
+        return toDto(repo.save(device));
+    }
+
+    /**
+     * Partially updates an existent device
+     * At the end, saves the Device on the db, through the repo
+     *
+     * @param id - id of the device to be updated
+     * @param req - DeviceUpdateRequest with the provided values for the update
+     * @return DeviceResponse with the updated Device content
+     */
+    @TrackExecution
+    public DeviceResponse partialUpdate(UUID id, DevicePatchRequest req) {
+        var device = findDevice(id);
+        req.name()
+            .filter(name -> !name.equals(device.getName()))
+            .ifPresent(name -> {
+                validateDuplicates(device, name, device.getBrand());
+                device.updateName(name);
+            });
+        req.brand()
+            .filter(brand -> !brand.equals(device.getBrand()))
+            .ifPresent(brand -> {
+                validateDuplicates(device, device.getName(), brand);
+                device.updateBrand(brand);
+            });
+        req.state()
+                .map(Device.State::from)
+                .ifPresent(device::updateState);
+        return toDto(repo.save(device));
     }
 
     /**
@@ -113,7 +119,7 @@ public class DevicesService {
     @Transactional(readOnly = true)
     @TrackExecution
     public DeviceResponse getOne(UUID id) {
-        Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
+        Device device = findDevice(id);
         return toDto(device);
     }
 
@@ -121,29 +127,19 @@ public class DevicesService {
      * fetches a list of all existent device,optionally filtered by brand or state
      * If it requires a filter, delegates on the method for that filter
      *
-     * @param brand    - when present, indicates that only devices of that brand should be returned
-     * @param stateStr - when present, indicates that only devices on that state should be returned
+     * @param name  - when present, indicates that only devices of that name should be returned
+     * @param brand - when present, indicates that only devices of that brand should be returned
+     * @param state - when present, indicates that only devices on that state should be returned
      * @param pageable - provides info about the pagination
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @Transactional(readOnly = true)
     @TrackExecution
-    public List<DeviceResponse> getAll(String name, String brand, String stateStr, Pageable pageable) {
-        State state = stateStr != null?
-                Device.getDeviceStateValue(stateStr) : State.AVAILABLE;
-        if (name != null) {
-            return repo.findAll(byFlexibleSearch(name, brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
-        }
-        if (brand != null && stateStr != null) {
-            return repo.findAll(byBrandAndState(brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
-        }
-        if (brand != null) {
-            return repo.findAll(byBrand(brand),pageable).stream().map(this::toDto).collect(Collectors.toList());
-        }
-        if (stateStr != null) {
-            return repo.findAll(byState(state),pageable).stream().map(this::toDto).collect(Collectors.toList());
-        }
-        return repo.findAll(pageable).stream().map(this::toDto).collect(Collectors.toList());
+    public List<DeviceResponse> getAll(Optional<String> name, Optional<String> brand, Optional<String> state, Pageable pageable) {
+        return repo.findAll(byFilters(name,brand,state), pageable)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -154,19 +150,25 @@ public class DevicesService {
     @Transactional
     @TrackExecution
     public void delete(UUID id) {
-        Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
+        var device = findDevice(id);
         if (device.isLocked()) {
             throw new InvalidDeleteException(id);
         }
         repo.delete(device);
     }
 
-
-
-
     //---------------------------------------------------------------------------------------//
     //                              internal utility methods                                 //
     //---------------------------------------------------------------------------------------//
+
+    /**
+     * Locates a device with the arg Id
+     * @param id - id of the device to find
+     * @return the located device
+     */
+    private Device findDevice(UUID id) {
+        return repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
+    }
 
     /**
      * to convert the created/updated/selected Device to a
@@ -184,17 +186,6 @@ public class DevicesService {
                 .build();
     }
 
-    /**
-     * locates a device with an identification matching the name+brand from the input
-     * @param name - name of the device to be located
-     * @param brand - brand of the device to be located
-     * @return the located device or null
-     */
-    private Device locateDevice(String name, String brand) {
-        return repo.findDeviceByNameAndBrand(name, brand).stream()
-                .findAny()
-                .orElse(null);
-    }
 
     /**
      * Checks if the identification values (name, brand) are valid (not null)
@@ -202,14 +193,12 @@ public class DevicesService {
      * @param name - name of the device
      * @param brand - brand of the device
      */
-    private void checkDeviceIdentification(String name, String brand) {
-        if (ObjectUtils.isEmpty(name)) {
+    private void validateIdentification(String name, String brand) {
+        if (name == null || name.isBlank())
             throw new InvalidNullValueException("name");
-        }
-        if (ObjectUtils.isEmpty(brand)) {
+        if (brand == null || brand.isBlank())
             throw new InvalidNullValueException("brand");
-        }
-        checkDeviceDuplicates(null, name, brand);
+        validateDuplicates(null, name, brand);
     }
 
     /**
@@ -219,13 +208,16 @@ public class DevicesService {
      * @param brand - brand of the device to be located
      * @throws InvalidDuplicatedValuesException, if it exists a duplicate
      */
-    private void checkDeviceDuplicates(Device dev, String name, String brand) {
-        Device oldDev = locateDevice(name, brand);
-        if (oldDev == null)
-            return;
-        if (oldDev!=dev) {
-            throw new InvalidDuplicatedValuesException(new String[]{"name", "brand"}, new String[]{name, brand});
-        }
+    private void validateDuplicates(Device dev, String name, String brand) {
+        repo.findDeviceByNameAndBrand(name, brand).stream()
+                .filter(existing -> !existing.equals(dev))
+                .findAny()
+                .ifPresent(d -> {
+                    throw new InvalidDuplicatedValuesException(
+                            new String[]{"name", "brand"},
+                            new String[]{name, brand}
+                    );
+                });
     }
 
 }

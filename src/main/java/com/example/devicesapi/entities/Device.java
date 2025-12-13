@@ -38,7 +38,16 @@ public class Device {
     public enum State {
         AVAILABLE,
         IN_USE,
-        INACTIVE
+        INACTIVE;
+        public static State from(String _state) {
+            try {
+                return State.valueOf(_state);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidFieldValueException("state", _state);
+            }
+        }
+
+
     }
 
     /**
@@ -85,32 +94,21 @@ public class Device {
     }
 
     /**
-     * validates the state text confronted to the enum values
-     * if it is invalid throws an exception
-     * @param _state: new state
-     * @return
-     */
-    public static State getDeviceStateValue(String _state) {
-        try {
-            return State.valueOf(_state);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidFieldValueException("state", _state);
-        }
-    }
-
-    /**
      * updates the state with a state string argument
      * if the state text is invalid, thows an exception
      * @param _state
      */
     public void updateState(String _state) {
-        setState(getDeviceStateValue(_state));
+        updateState(State.from(_state));
+    }
+    public void updateState(State _state) {
+        setState(_state);
     }
 
-    public static Device createDevice(String _name, String _brand) {
-        return createDevice(_name,_brand, State.AVAILABLE);
+    public static Device create(String _name, String _brand) {
+        return create(_name,_brand, State.AVAILABLE);
     }
-    public static Device createDevice(String _name, String _brand, State _state) {
+    public static Device create(String _name, String _brand, State _state) {
         return Device.builder()
                 .id(UUID.randomUUID())
                 .name(_name)
