@@ -91,7 +91,7 @@ public class DevicesController {
         Sort.Direction direction = ascending ?
                 Sort.Direction.ASC:
                 Sort.Direction.DESC;
-        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        List<Sort.Order> orders = new ArrayList<>();
         Sort.Order brandOrder = new Sort.Order(direction, "brand");
         orders.add(brandOrder);
         Sort.Order nameOrder = new Sort.Order(direction, "name");

@@ -43,7 +43,7 @@ public class Device {
 
     /**
      * determines the state where a device can't be updated or deleted
-     * @return
+     * @return boolean stating that the device is locked
      */
     public boolean isLocked() {
         return (state == State.IN_USE);
