@@ -1,7 +1,6 @@
 package com.example.devicesapi.services;
 
 
-
 import com.example.devicesapi.annotations.TrackExecution;
 import com.example.devicesapi.dtos.DeviceCreateRequest;
 import com.example.devicesapi.dtos.DeviceResponse;
@@ -13,8 +12,7 @@ import com.example.devicesapi.exceptions.InvalidDeleteException;
 import com.example.devicesapi.exceptions.InvalidDuplicatedValuesException;
 import com.example.devicesapi.exceptions.InvalidNullValueException;
 import com.example.devicesapi.repository.DevicesRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -23,6 +21,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.example.devicesapi.repository.DevicesRepository.Specs.byBrandAndState;
+import static com.example.devicesapi.repository.DevicesRepository.Specs.byState;
 
 @Service
 public class DevicesService {
@@ -36,12 +37,6 @@ public class DevicesService {
     public DevicesService(DevicesRepository repo) {
         this.repo = repo;
     }
-
-    /**
-     * Logging support
-     */
-    private static final Logger log = LoggerFactory.getLogger(DevicesService.class);
-
 
     //---------------------------------------------------------------------------------------//
     //                              public life cycle methods                                //
@@ -70,8 +65,6 @@ public class DevicesService {
             .createdAt(OffsetDateTime.now())
             .build();
         Device saved = repo.save(device);
-//        log.info("Device created: id={}, brand={}, state={}",
-//                device.getId(), device.getBrand(), device.getState());
         return toDto(saved);
     }
 
@@ -114,8 +107,6 @@ public class DevicesService {
         if (!partial || !ObjectUtils.isEmpty(newState))
             device.updateState(newState);
         Device saved = repo.save(device);
-//        log.info("Device updated: id={}, brand={}, state={}",
-//                device.getId(), device.getBrand(), device.getState());
         return toDto(saved);
     }
 
@@ -131,54 +122,33 @@ public class DevicesService {
     @TrackExecution
     public DeviceResponse getOne(UUID id) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
-//        log.info("Device located: id={}, brand={}, state={}",
-//                device.getId(), device.getBrand(), device.getState());
         return toDto(device);
     }
 
     /**
      * fetches a list of all existent device,optionally filtered by brand or state
      * If it requires a filter, delegates on the method for that filter
-     * @param brand - when present, indicates that only devices of that brand should be returned
-     * @param state - when present, indicates that only devices on that state should be returned
+     *
+     * @param brand    - when present, indicates that only devices of that brand should be returned
+     * @param stateStr - when present, indicates that only devices on that state should be returned
+     * @param pageable - provides info about the pagination
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @Transactional(readOnly = true)
     @TrackExecution
-    public List<DeviceResponse> getAll(String brand, String state) {
+    public List<DeviceResponse> getAll(String brand, String stateStr, Pageable pageable) {
+        State state = stateStr != null?
+                Device.getDeviceStateValue(stateStr) : State.AVAILABLE;
+        if (brand != null && stateStr != null) {
+            return repo.findAll(byBrandAndState(brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
+        }
         if (brand != null) {
-            //log.info("Select devices by brand={}",brand);
-            return getByBrand(brand);
+            return repo.findAll(byBrandAndState(brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
         }
-        if (state != null) {
-            //log.info("Select devices by state={}",state);
-            State stateValue = Device.getDeviceStateValue(state);
-            return getByState(stateValue);
+        if (stateStr != null) {
+            return repo.findAll(byState(state),pageable).stream().map(this::toDto).collect(Collectors.toList());
         }
-        //log.info("Select all devices");
-        return repo.findAll().stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    /**
-     * fetches a list of all existent device filtered by their brand
-     * @param brand - indicates that only devices of that brand should be returned
-     * @return list of DeviceResponse corresponding to the selected Devices
-     */
-    @Transactional(readOnly = true)
-    @TrackExecution
-    public List<DeviceResponse> getByBrand(String brand) {
-        return repo.findByBrand(brand).stream().map(this::toDto).collect(Collectors.toList());
-    }
-
-    /**
-     * fetches a list of all existent device filtered by their brand
-     * @param state - indicates that only devices on that state should be returned
-     * @return list of DeviceResponse corresponding to the selected Devices
-     */
-    @Transactional(readOnly = true)
-    @TrackExecution
-    public List<DeviceResponse> getByState(State state) {
-        return repo.findByState(state).stream().map(this::toDto).collect(Collectors.toList());
+        return repo.findAll(pageable).stream().map(this::toDto).collect(Collectors.toList());
     }
 
     /**
@@ -191,14 +161,13 @@ public class DevicesService {
     public void delete(UUID id) {
         Device device = repo.findById(id).orElseThrow(() -> new DeviceNotFoundException(id));
         if (device.isLocked()) {
-//            log.info("Failed device delete: id={}, brand={}, state={}",
-//                    device.getId(), device.getBrand(), device.getState());
             throw new InvalidDeleteException(id);
         }
-//        log.info("Device deleted: id={}, brand={}, state={}",
-//                device.getId(), device.getBrand(), device.getState());
         repo.delete(device);
     }
+
+
+
 
     //---------------------------------------------------------------------------------------//
     //                              internal utility methods                                 //

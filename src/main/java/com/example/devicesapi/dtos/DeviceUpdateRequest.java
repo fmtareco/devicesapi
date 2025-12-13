@@ -1,8 +1,8 @@
 package com.example.devicesapi.dtos;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 /**
  * DTO Pattern (Data Transfer Object)
@@ -10,9 +10,8 @@ import lombok.Setter;
  * - id and createdAt intentionally omitted (cannot be updated)
  * - all others fields nullable (to allow partial updates)
  */
-@Getter
-@Setter
 @Builder
+@Data
 public class DeviceUpdateRequest {
     private String name;
     private String brand;

@@ -3,8 +3,7 @@ package com.example.devicesapi.dtos;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 
 /**
@@ -12,8 +11,7 @@ import lombok.Setter;
  * Passing public data to the devices creation process
  * - id and createdAt intentionally omitted (internally set)
  */
-@Getter
-@Setter
+@Data
 @Builder
 public class DeviceCreateRequest {
     @NotBlank

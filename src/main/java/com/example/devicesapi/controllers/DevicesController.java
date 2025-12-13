@@ -5,11 +5,12 @@ import com.example.devicesapi.dtos.DeviceResponse;
 import com.example.devicesapi.dtos.DeviceUpdateRequest;
 import com.example.devicesapi.services.DevicesService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,8 +80,17 @@ public class DevicesController {
      * @return list of DeviceResponse corresponding to the matching devices
      */
     @GetMapping
-    public ResponseEntity<List<DeviceResponse>> getAll(@RequestParam(required = false) String brand, @RequestParam(required = false) String state) {
-        return ResponseEntity.ok(svc.getAll(brand, state));
+    public ResponseEntity<List<DeviceResponse>> getAll(
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String state,
+            @RequestParam(value = "page", defaultValue = "0" ) int page,
+            @RequestParam(value = "size", defaultValue = "5" ) int size,
+            @RequestParam(defaultValue = "true") boolean ascending) {
+        Sort sort = ascending ?
+                Sort.by("name").ascending() :
+                Sort.by("name").descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(svc.getAll(brand, state, pageable));
     }
 
     /**

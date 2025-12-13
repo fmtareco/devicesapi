@@ -1,6 +1,8 @@
 spring:
   application:
     name: devicesapi
+  profiles:
+    active: dev
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:devices_database}
     username: ${DB_USER:postgres}
@@ -12,7 +14,16 @@ spring:
       hibernate:
 #        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        # Batch configuration to optimize bulk inserts
+        batch_size: 50
+        order_inserts: true
     show-sql: true
   flyway:
     enabled: true
     locations: classpath:db/migration
+logging:
+  level:
+    root: INFO                                      # Set the general logging level for the application
+    org.hibernate.SQL: DEBUG                        # Log SQL statements executed by Hibernate
+    org.hibernate.type.descriptor.sql: TRACE        # Log SQL parameter binding
+    org.springframework.data.jpa.repository: DEBUG  # Log JPA repository method calls
