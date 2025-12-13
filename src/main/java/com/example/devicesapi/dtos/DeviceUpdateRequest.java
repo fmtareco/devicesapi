@@ -1,8 +1,6 @@
 package com.example.devicesapi.dtos;
 
 import lombok.Builder;
-import lombok.Data;
-
 
 /**
  * DTO Pattern (Data Transfer Object)

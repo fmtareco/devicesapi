@@ -61,8 +61,8 @@ public class Device {
     /**
      * checks if a particular field can assume a given value
      * depends on the device lock state and on the value
-      * @param field
-     * @param value
+      * @param field field name
+     * @param value new field value
      */
     private void checkUpdateAllowed(String field, String value) {
         if (value == null || value.isEmpty()) {
@@ -86,7 +86,7 @@ public class Device {
     /**
      * (tries to) update the device brand
      * depends on the lock state and the new brand value
-     * @param _brand
+     * @param _brand new brand
      */
     public void updateBrand(String _brand) {
         checkUpdateAllowed("brand", _brand);
@@ -96,7 +96,7 @@ public class Device {
     /**
      * updates the state with a state string argument
      * if the state text is invalid, thows an exception
-     * @param _state
+     * @param _state new state text
      */
     public void updateState(String _state) {
         updateState(State.from(_state));
