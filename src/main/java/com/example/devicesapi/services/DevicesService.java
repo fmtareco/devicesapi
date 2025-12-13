@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.example.devicesapi.repository.DevicesRepository.Specs.byBrandAndState;
-import static com.example.devicesapi.repository.DevicesRepository.Specs.byState;
+import static com.example.devicesapi.repository.DevicesRepository.Specs.*;
 
 @Service
 public class DevicesService {
@@ -143,7 +142,7 @@ public class DevicesService {
             return repo.findAll(byBrandAndState(brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
         }
         if (brand != null) {
-            return repo.findAll(byBrandAndState(brand,state),pageable).stream().map(this::toDto).collect(Collectors.toList());
+            return repo.findAll(byBrand(brand),pageable).stream().map(this::toDto).collect(Collectors.toList());
         }
         if (stateStr != null) {
             return repo.findAll(byState(state),pageable).stream().map(this::toDto).collect(Collectors.toList());
