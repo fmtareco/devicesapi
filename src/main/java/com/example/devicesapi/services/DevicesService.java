@@ -13,14 +13,14 @@ import com.example.devicesapi.exceptions.InvalidDeleteException;
 import com.example.devicesapi.exceptions.InvalidDuplicatedValuesException;
 import com.example.devicesapi.exceptions.InvalidNullValueException;
 import com.example.devicesapi.repository.DevicesRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 import static com.example.devicesapi.repository.DevicesRepository.*;
 
@@ -51,7 +51,6 @@ public class DevicesService {
      * @param req - DataCreateRequest with the provided values for the new device
      * @return DeviceResponse with the new Device content
      */
-    @Transactional
     @TrackExecution
     public DeviceResponse create(DeviceCreateRequest req) {
         validateIdentification(req.name(),req.brand());
@@ -116,7 +115,6 @@ public class DevicesService {
      * @param id - id of the device to be updated
      * @return DeviceResponse with the selected Device content
      */
-    @Transactional(readOnly = true)
     @TrackExecution
     public DeviceResponse getOne(UUID id) {
         Device device = findDevice(id);
@@ -133,13 +131,12 @@ public class DevicesService {
      * @param pageable - provides info about the pagination
      * @return list of DeviceResponse corresponding to the selected Devices
      */
-    @Transactional(readOnly = true)
     @TrackExecution
     public List<DeviceResponse> getAll(Optional<String> name, Optional<String> brand, Optional<String> state, Pageable pageable) {
         return repo.findAll(byFilters(name,brand,state), pageable)
                 .stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -147,7 +144,6 @@ public class DevicesService {
      * First It locates the device and checks if it can be deleted (not on Lock state)
      * @param id - id of the device to be updated
      */
-    @Transactional
     @TrackExecution
     public void delete(UUID id) {
         var device = findDevice(id);
@@ -178,8 +174,8 @@ public class DevicesService {
      */
     private DeviceResponse toDto(Device device) {
         return DeviceResponse.builder()
-            .id(device.getId())
-            .brand(device.getBrand())
+                .id(device.getId())
+                .brand(device.getBrand())
                 .name(device.getName())
                 .state(device.getState().name())
                 .createdAt(device.getCreatedAt())
