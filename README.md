@@ -69,12 +69,24 @@ All business logic is isolated in the **Service Layer** and validated through **
 
 ---
 
-## 5. Logging
+
+## 5. Logging / Observability
 
 The application uses **JSON logging** for production-ready observability.
-
 Log fields include timestamp, level, message and logger.
 
+
+OpenTelemetry
+https://opentelemetry.io/docs/languages/java/getting-started/
+  - download https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+  - set env vars
+      $env:JAVA_TOOL_OPTIONS="-javaagent:opentelemetry-javaagent.jar"
+      $env:OTEL_TRACES_EXPORTER="logging"
+      $env:OTEL_METRICS_EXPORTER="logging"
+      $env:OTEL_LOGS_EXPORTER="logging"
+      $env:OTEL_METRIC_EXPORT_INTERVAL=15000
+  - run app 
+     java -jar .\target\devicesapi-0.0.1-SNAPSHOT.jar
 ---
 
 ## 6. API Documentation (Swagger / OpenAPI)

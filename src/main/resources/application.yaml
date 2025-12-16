@@ -27,3 +27,27 @@ logging:
     org.hibernate.SQL: DEBUG                        # Log SQL statements executed by Hibernate
     org.hibernate.type.descriptor.sql: TRACE        # Log SQL parameter binding
     org.springframework.data.jpa.repository: DEBUG  # Log JPA repository method calls
+  pattern:
+    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+
+management:
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: 1.0   # 100% for demo; lower in prod
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+otel:
+  exporter:
+    otlp:
+      endpoint: http://otel-collector:4317
+#tracing:
+#  url: http://localhost:4318/v1/traces

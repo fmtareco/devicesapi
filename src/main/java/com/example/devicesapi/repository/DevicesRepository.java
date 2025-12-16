@@ -32,7 +32,7 @@ public interface DevicesRepository extends
                             predicates.add(builder.like(builder.lower(root.get("name")), "%"+n.toLowerCase()+"%")));
             brand.filter(b -> !b.isBlank())
                     .ifPresent(b ->
-                            predicates.add(builder.like(builder.lower(root.get("brand")), "%"+b.toLowerCase()+"%")));
+                            predicates.add(builder.like(builder.lower(root.get("brand")), b.toLowerCase()+"%")));
             state.filter(s -> !s.isBlank())
                     .ifPresent(s ->
                             predicates.add(builder.equal(root.get("state"), Device.State.from(s))));

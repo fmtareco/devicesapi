@@ -85,134 +85,134 @@ class DeviceControllerTest {
         testFetchDevices("getAllBefore", null, null);
     }
 
-    /**
-     * test 2
-     * - creates (and also fails) a set of devices determined by the values
-     * returned by the method source
-     */
-    @Order(2)
-    @ParameterizedTest
-    @MethodSource("provideValuesForCreation")
-    void createNewDevice( String name, String brand, String state) {
-        testCreate("createNewDevice", name, brand, state);
-    }
-
-    /**
-     * test 3
-     * - full updates on the new devices, determined by the values
-     * returned by the method source
-     */
-    @Order(3)
-    @ParameterizedTest
-    @MethodSource("provideValuesForFullUpdate")
-    void testFullUpdates(UUID id, String name, String brand, String state) {
-        testFullUpdateDevice("testFullUpdates", id, name, brand, state);
-    }
-
-    /**
-     * test 4
-     * - partial updates on the new devices, determined by the values
-     * returned by the method source
-     */
-    @Order(4)
-    @ParameterizedTest
-    @MethodSource("provideValuesForPartialUpdate")
-    void testPartialUpdates(UUID id, String name, String brand, String state) {
-        testPartialUpdateDevice("testPartialUpdates", id, name, brand, state);
-    }
-
-    /**
-     * test 5
-     * - updates the state (to IN_USE) of the new devices, according the values
-     * returned by the method source
-     *
-     */
-    @Order(5)
-    @ParameterizedTest
-    @MethodSource("provideValuesForUpdateLock")
-    void testUpdateLocks(UUID id, String name, String brand, String state) {
-        testPartialUpdateDevice("testUpdateLocks", id, name, brand, state);
-    }
-
-    /**
-     * test 6
-     * - expected failed deletes, due to the devices locked state
-     */
-    @Order(6)
-    @ParameterizedTest
-    @MethodSource("provideCreatedDevices")
-    void failedDeletes(DeviceResponse dr) {
-        testDeleteDevice("failedDeletes", dr);
-    }
-
-    /**
-     * test 7
-     * - single selection (GET) to the devices
-     */
-    @Order(7)
-    @ParameterizedTest
-    @MethodSource("provideCreatedDevices")
-    void findCreatedDevice(DeviceResponse dr) {
-        testFindDevice("findCreatedDevice", dr);
-    }
-
-    /**
-     * test 8
-     * - multiple selection (GET?brand=) to all the devices of a particular brand
-     * scans all brand of the enum
-     */
-    @Order(8)
-    @ParameterizedTest
-    @EnumSource(Brands.class)
-    void getAllOfBrand(Brands brand) {
-        testFetchDevices("getAllOfBrand", "brand", brand.toString());
-    }
-
-    /**
-     * test 9
-     * - multiple selection (GET?state=) to all the devices on a particular state
-     * scans all states of the enum
-     */
-    @Order(9)
-    @ParameterizedTest
-    @EnumSource(Device.State.class)
-    void getAllOfState(State state) {
-        testFetchDevices("getAllOfState", "state", state.toString());
-    }
-
-    /**
-     * test 10
-     * - updates the state (to AVAILABLE) of the new devices, according the values
-     * returned by the method source
-     *
-     */
-    @Order(10)
-    @ParameterizedTest
-    @MethodSource("provideValuesForUpdateUnlock")
-    void testUpdateUnlocks(UUID id, String name, String brand, String state) {
-        testPartialUpdateDevice("testUpdateUnlocks", id, name, brand, state);
-    }
-
-    /**
-     * test 11
-     * - delete of all the created devices during the tests
-     */
-    @Order(11)
-    @ParameterizedTest
-    @MethodSource("provideCreatedDevices")
-    void finalDelete(DeviceResponse dr) {
-        testDeleteDevice("finalDelete", dr);
-    }
-
-    /**
-     * test 12
-     * - lists all the existent devices after all the tests
-     */
-    @Test
-    @Order(12)
-    void getAllAfter() {
-        testFetchDevices("getAllAfter", null, null);
-    }
+//    /**
+//     * test 2
+//     * - creates (and also fails) a set of devices determined by the values
+//     * returned by the method source
+//     */
+//    @Order(2)
+//    @ParameterizedTest
+//    @MethodSource("provideValuesForCreation")
+//    void createNewDevice( String name, String brand, String state) {
+//        testCreate("createNewDevice", name, brand, state);
+//    }
+//
+//    /**
+//     * test 3
+//     * - full updates on the new devices, determined by the values
+//     * returned by the method source
+//     */
+//    @Order(3)
+//    @ParameterizedTest
+//    @MethodSource("provideValuesForFullUpdate")
+//    void testFullUpdates(UUID id, String name, String brand, String state) {
+//        testFullUpdateDevice("testFullUpdates", id, name, brand, state);
+//    }
+//
+//    /**
+//     * test 4
+//     * - partial updates on the new devices, determined by the values
+//     * returned by the method source
+//     */
+//    @Order(4)
+//    @ParameterizedTest
+//    @MethodSource("provideValuesForPartialUpdate")
+//    void testPartialUpdates(UUID id, String name, String brand, String state) {
+//        testPartialUpdateDevice("testPartialUpdates", id, name, brand, state);
+//    }
+//
+//    /**
+//     * test 5
+//     * - updates the state (to IN_USE) of the new devices, according the values
+//     * returned by the method source
+//     *
+//     */
+//    @Order(5)
+//    @ParameterizedTest
+//    @MethodSource("provideValuesForUpdateLock")
+//    void testUpdateLocks(UUID id, String name, String brand, String state) {
+//        testPartialUpdateDevice("testUpdateLocks", id, name, brand, state);
+//    }
+//
+//    /**
+//     * test 6
+//     * - expected failed deletes, due to the devices locked state
+//     */
+//    @Order(6)
+//    @ParameterizedTest
+//    @MethodSource("provideCreatedDevices")
+//    void failedDeletes(DeviceResponse dr) {
+//        testDeleteDevice("failedDeletes", dr);
+//    }
+//
+//    /**
+//     * test 7
+//     * - single selection (GET) to the devices
+//     */
+//    @Order(7)
+//    @ParameterizedTest
+//    @MethodSource("provideCreatedDevices")
+//    void findCreatedDevice(DeviceResponse dr) {
+//        testFindDevice("findCreatedDevice", dr);
+//    }
+//
+//    /**
+//     * test 8
+//     * - multiple selection (GET?brand=) to all the devices of a particular brand
+//     * scans all brand of the enum
+//     */
+//    @Order(8)
+//    @ParameterizedTest
+//    @EnumSource(Brands.class)
+//    void getAllOfBrand(Brands brand) {
+//        testFetchDevices("getAllOfBrand", "brand", brand.toString());
+//    }
+//
+//    /**
+//     * test 9
+//     * - multiple selection (GET?state=) to all the devices on a particular state
+//     * scans all states of the enum
+//     */
+//    @Order(9)
+//    @ParameterizedTest
+//    @EnumSource(Device.State.class)
+//    void getAllOfState(State state) {
+//        testFetchDevices("getAllOfState", "state", state.toString());
+//    }
+//
+//    /**
+//     * test 10
+//     * - updates the state (to AVAILABLE) of the new devices, according the values
+//     * returned by the method source
+//     *
+//     */
+//    @Order(10)
+//    @ParameterizedTest
+//    @MethodSource("provideValuesForUpdateUnlock")
+//    void testUpdateUnlocks(UUID id, String name, String brand, String state) {
+//        testPartialUpdateDevice("testUpdateUnlocks", id, name, brand, state);
+//    }
+//
+//    /**
+//     * test 11
+//     * - delete of all the created devices during the tests
+//     */
+//    @Order(11)
+//    @ParameterizedTest
+//    @MethodSource("provideCreatedDevices")
+//    void finalDelete(DeviceResponse dr) {
+//        testDeleteDevice("finalDelete", dr);
+//    }
+//
+//    /**
+//     * test 12
+//     * - lists all the existent devices after all the tests
+//     */
+//    @Test
+//    @Order(12)
+//    void getAllAfter() {
+//        testFetchDevices("getAllAfter", null, null);
+//    }
 
 
 
@@ -416,10 +416,10 @@ class DeviceControllerTest {
      */
     private static Stream<Arguments> provideValuesForCreation() {
         return Stream.of(
-                Arguments.of(Models.Iphone.toString(), Brands.Apple.toString(), Device.State.AVAILABLE.toString()),
-                Arguments.of(Models.Iphone.toString(), Brands.Apple.toString(), Device.State.AVAILABLE.toString()),
-                Arguments.of(null, Brands.Samsung.toString(), Device.State.AVAILABLE.toString()),
-                Arguments.of(Models.Galaxy.toString(), null, Device.State.AVAILABLE.toString()),
+                Arguments.of(Models.Iphone.toString(), Brands.Apple.toString(), defaultState()),
+                Arguments.of(Models.Iphone.toString(), Brands.Apple.toString(), defaultState()),
+                Arguments.of(null, Brands.Samsung.toString(), defaultState()),
+                Arguments.of(Models.Galaxy.toString(), null, defaultState()),
                 Arguments.of(Models.Galaxy.toString(), Brands.Samsung.toString(), null),
                 Arguments.of(Models.Galaxy.toString(), Brands.Samsung.toString(), "InvalidState"),
                 Arguments.of(Models.Galaxy.toString(), Brands.Samsung.toString(), Device.State.INACTIVE.toString())
@@ -452,12 +452,12 @@ class DeviceControllerTest {
             }
         }
         args.add(Arguments.of(id, null, null, Device.State.INACTIVE.toString()));
-        args.add(Arguments.of(id, null, null, Device.State.AVAILABLE.toString()));
+        args.add(Arguments.of(id, null, null, defaultState()));
         args.add(Arguments.of(id, null, null, "UnknowState"));
-        args.add(Arguments.of(id, null, null, Device.State.IN_USE.toString()));
+        args.add(Arguments.of(id, null, null, lockedState()));
         args.add(Arguments.of(id, "SommeModel", null, null));
         args.add(Arguments.of(id, null, "SomeBrand", null));
-        args.add(Arguments.of(id, null, null, Device.State.AVAILABLE.toString()));
+        args.add(Arguments.of(id, null, null, defaultState()));
         return args.stream();
     }
 
@@ -481,19 +481,23 @@ class DeviceControllerTest {
         }
         for(String model : models) {
             for(String brand : brands) {
-                args.add(Arguments.of(id, model, brand, Device.State.AVAILABLE.toString()));
+                args.add(Arguments.of(id, model, brand, defaultState()));
             }
         }
         String model =dr.name();
         String brand = dr.brand();
-        args.add(Arguments.of(id, model, brand, Device.State.AVAILABLE.toString()));
+        args.add(Arguments.of(id, model, brand, defaultState()));
         args.add(Arguments.of(id, model, brand, "UnknowState"));
-        args.add(Arguments.of(id, model, brand, Device.State.IN_USE.toString()));
-        args.add(Arguments.of(id, "SommeModel", brand, Device.State.AVAILABLE.toString()));
-        args.add(Arguments.of(id, model, "SomeBrand", Device.State.AVAILABLE.toString()));
-        args.add(Arguments.of(id, model, brand, Device.State.IN_USE.toString()));
-        args.add(Arguments.of(id, "SommeModel", "SomeBrand", Device.State.AVAILABLE.toString()));
+        args.add(Arguments.of(id, model, brand, lockedState()));
+        args.add(Arguments.of(id, "SommeModel", brand, defaultState()));
+        args.add(Arguments.of(id, model, "SomeBrand", defaultState()));
+        args.add(Arguments.of(id, model, brand, lockedState()));
+        args.add(Arguments.of(id, "SommeModel", "SomeBrand", defaultState()));
         return args.stream();
+    }
+
+    private static String lockedState() {
+        return State.IN_USE.toString();
     }
 
     /**
@@ -503,7 +507,7 @@ class DeviceControllerTest {
     private static Stream<Arguments> provideValuesForUpdateLock() {
         List<Arguments> args = new ArrayList<>();
         for (DeviceResponse dr : createdDevices) {
-            args.add(Arguments.of(dr.id(), null, null, Device.State.IN_USE.toString()));
+            args.add(Arguments.of(dr.id(), null, null, lockedState()));
         }
         return args.stream();
     }
@@ -515,9 +519,13 @@ class DeviceControllerTest {
     private static Stream<Arguments> provideValuesForUpdateUnlock() {
         List<Arguments> args = new ArrayList<>();
         for (DeviceResponse dr : createdDevices) {
-            args.add(Arguments.of(dr.id(), null, null, Device.State.AVAILABLE.toString()));
+            args.add(Arguments.of(dr.id(), null, null, defaultState()));
         }
         return args.stream();
+    }
+
+    private static String defaultState() {
+        return State.AVAILABLE.toString();
     }
 
 

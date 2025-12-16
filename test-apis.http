@@ -1,0 +1,14 @@
+### get all
+GET http://localhost:8080/api/devices
+
+### get all from brand
+GET http://localhost:8080/api/devices?brand=Sam
+
+### get all from state
+GET http://localhost:8080/api/devices?state=AVAILABLE
+
+### get from brand named
+GET http://localhost:8080/api/devices?brand=Apple&name=IPh
+
+### get specific instance
+GET http://localhost:8080/api/devices/c51d5b64-6261-45bc-b724-22870bfe9b55

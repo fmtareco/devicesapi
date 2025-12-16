@@ -3,11 +3,25 @@
 
     <!-- General logging level -->
     <property name="LOG_LEVEL" value="INFO"/>
+<!--    <pattern>-->
+<!--        {-->
+<!--        "level":"%level",-->
+<!--        "traceId":"%X{traceId}",-->
+<!--        "spanId":"%X{spanId}",-->
+<!--        "logger":"%logger",-->
+<!--        "timestamp":"%d{ISO8601}",-->
+<!--        "message":"%msg"-->
+<!--        }-->
+<!--    </pattern>-->
 
     <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <!-- Add common fields to every log message -->
-            <customFields>{"app":"device-api","env":"local"}</customFields>
+<!--        <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
+<!--            &lt;!&ndash; Add common fields to every log message &ndash;&gt;-->
+<!--            <customFields>{"app":"device-api","env":"local"}</customFields>-->
+<!--        </encoder>-->
+        <encoder>
+<!--            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%kvp- %msg%n</pattern>-->
+            <pattern>[%thread] %logger{36} -%kvp- %msg%n</pattern>
         </encoder>
     </appender>
     <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -17,6 +31,19 @@
             <maxHistory>7</maxHistory>
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %X{traceId} %X{spanId} %-5level %logger{36} -%kvp- %msg%n</pattern>
+<!--            <pattern>-->
+<!--                {-->
+<!--                "timestamp":"%d{ISO8601}",-->
+<!--                "level":"%level",-->
+<!--                "traceId":"%X{traceId}",-->
+<!--                "spanId":"%X{spanId}",-->
+<!--                "logger":"%logger",-->
+<!--                "message":"%msg"-->
+<!--                }-->
+<!--            </pattern>-->
+        </encoder>
     </appender>
     <!-- Application loggers -->
     <root level="${LOG_LEVEL}">
