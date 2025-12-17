@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -132,8 +133,14 @@ public class DevicesService {
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @TrackExecution
-    public List<DeviceResponse> getAll(Optional<String> name, Optional<String> brand, Optional<String> state, Pageable pageable) {
-        return repo.findAll(byFilters(name,brand,state), pageable)
+    public List<DeviceResponse> getAll(
+            Optional<String> name,
+            Optional<String> brand,
+            Optional<String> state,
+            Optional<LocalDateTime> startDateTime,
+            Optional<LocalDateTime> endDateTime,
+            Pageable pageable) {
+        return repo.findAll(byFilters(name,brand,state, startDateTime, endDateTime), pageable)
                 .stream()
                 .map(this::toDto)
                 .toList();

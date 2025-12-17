@@ -12,3 +12,6 @@ GET http://localhost:8080/api/devices?brand=Apple&name=IPh
 
 ### get specific instance
 GET http://localhost:8080/api/devices/c51d5b64-6261-45bc-b724-22870bfe9b55
+
+### get by date interval
+GET http://localhost:8080/api/devices?startDateTime=2025-12-16T10:57:40&endDateTime=2025-12-16T10:57:42

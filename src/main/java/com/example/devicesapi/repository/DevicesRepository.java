@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,9 @@ public interface DevicesRepository extends
 
     static Specification<Device> byFilters(Optional<String> name,
                                            Optional<String> brand,
-                                           Optional<String> state) {
+                                           Optional<String> state,
+                                           Optional<LocalDateTime> startDate,
+                                           Optional<LocalDateTime> endDate) {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
             name.filter(n -> !n.isBlank())
@@ -36,7 +39,13 @@ public interface DevicesRepository extends
             state.filter(s -> !s.isBlank())
                     .ifPresent(s ->
                             predicates.add(builder.equal(root.get("state"), Device.State.from(s))));
-            return builder.and(predicates.toArray(new Predicate[predicates.size()]));
+            startDate
+                .ifPresent(d ->
+                        predicates.add(builder.greaterThanOrEqualTo(root.get("createdAt"), startDate.get())));
+            endDate
+                    .ifPresent(d ->
+                            predicates.add(builder.lessThanOrEqualTo(root.get("createdAt"), endDate.get())));
+        return builder.and(predicates.toArray(new Predicate[predicates.size()]));
         };
     }
 }

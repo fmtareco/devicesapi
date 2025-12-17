@@ -9,9 +9,12 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -89,7 +92,9 @@ public class DevicesController {
             @RequestParam(required = false) String state,
             @RequestParam(value = "page", defaultValue = "0" ) int page,
             @RequestParam(value = "size", defaultValue = "10" ) int size,
-            @RequestParam(defaultValue = "true") boolean ascending) {
+            @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd'T'HH-mm-ss") LocalDateTime startDateTime,
+            @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd'T'HH-mm-ss") LocalDateTime endDateTime,
+            @RequestParam  (defaultValue = "true") boolean ascending) {
         Sort sort = getSort(ascending);
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok(
@@ -97,6 +102,8 @@ public class DevicesController {
                         Optional.ofNullable(name),
                         Optional.ofNullable(brand),
                         Optional.ofNullable(state),
+                        Optional.ofNullable(startDateTime),
+                        Optional.ofNullable(endDateTime),
                         pageable));
     }
 

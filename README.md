@@ -184,4 +184,5 @@ Method	Endpoint	               Description
 
 ```
 
-
+search by date intervals
+http://localhost:8080/api/devices?startDateTime=2025-12-16T10:57:40&endDateTime=2025-12-16T10:57:42
