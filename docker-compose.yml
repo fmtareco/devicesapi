@@ -69,6 +69,8 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: devices_database
+      DEVICE_API_KEY: devices-api-key
+      DEVICE_API_SECRET_HASH: $2a$10$a7hVrOTL3KyzCdIhrfZxXOKlAmOtv/fg40gE7AXr024QgTHJYdZl6
     depends_on:
       - database
 networks:

@@ -1,7 +1,6 @@
-package com.example.devicesapi.config;
+package com.example.devicesapi.repository;
 
 import com.example.devicesapi.entities.Device;
-import com.example.devicesapi.repository.DevicesRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

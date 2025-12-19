@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="DevicesapiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <envs>
+      <env name="DEVICE_API_KEY" value="devices-api-key" />
+      <env name="DEVICE_API_SECRET_HASH" value="$2a$10$a7hVrOTL3KyzCdIhrfZxXOKlAmOtv/fg40gE7AXr024QgTHJYdZl6" />
+      <env name="API_USER" value="user" />
+      <env name="API_PASSWORD" value="xpto123" />
+    </envs>
+    <module name="devicesapi" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.devicesapi.DevicesapiApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
