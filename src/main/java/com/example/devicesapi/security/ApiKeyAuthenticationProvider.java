@@ -20,24 +20,6 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
         this.props = props;
     }
 
-//
-//    @Override
-//    public Authentication authenticate(Authentication authentication)
-//            throws AuthenticationException {
-//        ApiKeyAuthenticationToken token =
-//                (ApiKeyAuthenticationToken) authentication;
-//        String apiKey = token.getKey();
-//        String apiSecret = token.getSecret();
-//        if (!isValid(apiKey, apiSecret)) {
-//            throw new BadCredentialsException("Invalid API key");
-//        }
-//        return new ApiKeyAuthenticationToken(
-//                apiKey,
-//                apiSecret,
-//                List.of(new SimpleGrantedAuthority("ROLE_API"))
-//        );
-//    }
-
     @Override
     public Authentication authenticate(Authentication auth) {
         var token = (ApiKeyAuthenticationToken) auth;
@@ -64,7 +46,4 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
         return ApiKeyAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-//    private boolean isValid(String key, String secret) {
-//        return "valid-api-key".equals(key) && "valid-api-secret".equals(secret);
-//    }
 }

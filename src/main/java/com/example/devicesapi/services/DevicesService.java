@@ -14,6 +14,7 @@ import com.example.devicesapi.exceptions.InvalidDuplicatedValuesException;
 import com.example.devicesapi.exceptions.InvalidNullValueException;
 import com.example.devicesapi.repository.DevicesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
 import static com.example.devicesapi.repository.DevicesRepository.*;
 
 @Service
+@CacheConfig("devices")
 public class DevicesService {
 
     /**
@@ -53,6 +55,7 @@ public class DevicesService {
      * @return DeviceResponse with the new Device content
      */
     @TrackExecution
+    @CachePut(value="devices", key="#result.id()")
     public DeviceResponse create(DeviceCreateRequest req) {
         validateIdentification(req.name(),req.brand());
         State state = Device.State.from(req.state());
@@ -70,6 +73,7 @@ public class DevicesService {
      * @return DeviceResponse with the updated Device content
      */
     @TrackExecution
+    @CachePut(value="devices", key="#result.id()")
     public DeviceResponse update(UUID id, DeviceUpdateRequest req) {
         var device = findDevice(id);
         validateDuplicates(device, req.name(), req.brand());
@@ -88,6 +92,7 @@ public class DevicesService {
      * @return DeviceResponse with the updated Device content
      */
     @TrackExecution
+    @CachePut(value="devices", key="#result.id()")
     public DeviceResponse partialUpdate(UUID id, DevicePatchRequest req) {
         var device = findDevice(id);
         req.name()
@@ -117,6 +122,7 @@ public class DevicesService {
      * @return DeviceResponse with the selected Device content
      */
     @TrackExecution
+    @Cacheable(value = "devices", key = "#id")
     public DeviceResponse getOne(UUID id) {
         Device device = findDevice(id);
         return toDto(device);
@@ -133,6 +139,7 @@ public class DevicesService {
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @TrackExecution
+    @Cacheable(cacheNames = "devices")
     public List<DeviceResponse> getAll(
             Optional<String> name,
             Optional<String> brand,
@@ -152,6 +159,7 @@ public class DevicesService {
      * @param id - id of the device to be updated
      */
     @TrackExecution
+    @CacheEvict(value = "devices", key = "#id")
     public void delete(UUID id) {
         var device = findDevice(id);
         if (device.isLocked()) {

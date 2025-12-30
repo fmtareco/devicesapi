@@ -27,6 +27,13 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  cache:
+    image: "redis"
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
   otel-collector:
     image: otel/opentelemetry-collector
     container_name: otel-collector
@@ -66,13 +73,17 @@ services:
       - observability
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8080
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: devices_database
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
       DEVICE_API_KEY: devices-api-key
       DEVICE_API_SECRET_HASH: $2a$10$a7hVrOTL3KyzCdIhrfZxXOKlAmOtv/fg40gE7AXr024QgTHJYdZl6
     depends_on:
       - database
+      - cache
 networks:
   postgres:
     driver: bridge

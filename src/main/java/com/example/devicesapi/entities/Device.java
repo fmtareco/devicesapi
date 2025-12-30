@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -35,7 +37,7 @@ public class Device {
     @Column(name = "creation_time", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    public enum State {
+    public enum State implements Serializable {
         AVAILABLE,
         IN_USE,
         INACTIVE;

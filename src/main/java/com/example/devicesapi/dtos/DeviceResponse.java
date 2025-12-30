@@ -2,6 +2,7 @@ package com.example.devicesapi.dtos;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -16,4 +17,4 @@ public record DeviceResponse (
     String brand,
     String state,
     OffsetDateTime createdAt
-){}
+) implements Serializable {}

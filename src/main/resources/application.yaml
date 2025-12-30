@@ -1,3 +1,10 @@
+info:
+  app:
+    name: DevicesAPI
+    version: 0.0.4
+    description: My fabulous API of devices
+server:
+  port: ${SERVER_PORT:8181}
 spring:
   application:
     name: devicesapi
@@ -30,6 +37,28 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  data:
+    redis:
+      port: ${REDIS_PORT:6379}
+      host: ${REDIS_HOST:localhost}
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 8
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30
+      cache-null-values: false
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+      FAIL_ON_EMPTY_BEANS: false
+    deserialization:
+      unwrap-root-value: false
 logging:
   level:
     root: INFO                                      # Set the general logging level for the application
@@ -67,9 +96,11 @@ otel:
       endpoint: http://otel-collector:4317
 #tracing:
 #  url: http://localhost:4318/v1/traces
-info:
-  app:
-    name: DevicesAPI
-    version: 0.0.3333
-    descriptiom: My fabulous API of devices
+clear:
+  all:
+    cache:
+      fixed:
+        rate:
+
+
 
