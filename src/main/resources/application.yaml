@@ -4,7 +4,7 @@ info:
     version: 0.0.4
     description: My fabulous API of devices
 server:
-  port: ${SERVER_PORT:8181}
+  port: ${SERVER_PORT:8080}
 spring:
   application:
     name: devicesapi
