@@ -1,9 +1,6 @@
 package com.example.devicesapi.controllers;
 
-import com.example.devicesapi.dtos.DeviceCreateRequest;
-import com.example.devicesapi.dtos.DevicePatchRequest;
-import com.example.devicesapi.dtos.DeviceResponse;
-import com.example.devicesapi.dtos.DeviceUpdateRequest;
+import com.example.devicesapi.dtos.*;
 import com.example.devicesapi.services.DevicesService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
@@ -86,7 +83,7 @@ public class DevicesController {
      * @return list of DeviceResponse corresponding to the matching devices
      */
     @GetMapping
-    public ResponseEntity<List<DeviceResponse>> getAll(
+    public ResponseEntity<PageResponse<DeviceResponse>> getAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String state,
@@ -98,7 +95,7 @@ public class DevicesController {
         Sort sort = getSort(ascending);
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok(
-                svc.getAll(
+                svc.getDevices(
                         Optional.ofNullable(name),
                         Optional.ofNullable(brand),
                         Optional.ofNullable(state),

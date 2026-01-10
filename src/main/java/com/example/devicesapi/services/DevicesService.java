@@ -2,10 +2,7 @@ package com.example.devicesapi.services;
 
 
 import com.example.devicesapi.annotations.TrackExecution;
-import com.example.devicesapi.dtos.DeviceCreateRequest;
-import com.example.devicesapi.dtos.DevicePatchRequest;
-import com.example.devicesapi.dtos.DeviceResponse;
-import com.example.devicesapi.dtos.DeviceUpdateRequest;
+import com.example.devicesapi.dtos.*;
 import com.example.devicesapi.entities.Device;
 import com.example.devicesapi.entities.Device.State;
 import com.example.devicesapi.exceptions.DeviceNotFoundException;
@@ -13,8 +10,8 @@ import com.example.devicesapi.exceptions.InvalidDeleteException;
 import com.example.devicesapi.exceptions.InvalidDuplicatedValuesException;
 import com.example.devicesapi.exceptions.InvalidNullValueException;
 import com.example.devicesapi.repository.DevicesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -140,17 +137,27 @@ public class DevicesService {
      */
     @TrackExecution
     @Cacheable(cacheNames = "devices")
-    public List<DeviceResponse> getAll(
+    public PageResponse<DeviceResponse> getDevices(
             Optional<String> name,
             Optional<String> brand,
             Optional<String> state,
             Optional<LocalDateTime> startDateTime,
             Optional<LocalDateTime> endDateTime,
             Pageable pageable) {
-        return repo.findAll(byFilters(name,brand,state, startDateTime, endDateTime), pageable)
+        Page<Device> devicesPage = repo.findAll(
+                byFilters(name,brand,state, startDateTime, endDateTime),
+                pageable);
+        List<DeviceResponse> devicesList = devicesPage.getContent()
                 .stream()
                 .map(this::toDto)
                 .toList();
+        PageMetadata metadata = new PageMetadata(
+                devicesPage.getNumber(),
+                devicesPage.getSize(),
+                devicesPage.getTotalElements(),
+                devicesPage.getTotalPages()
+        );
+        return new PageResponse<>(devicesList, metadata);
     }
 
     /**

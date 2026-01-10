@@ -1,10 +1,7 @@
 package com.example.devicesapi.controllers;
 
 
-import com.example.devicesapi.exceptions.ErrorInfo;
-import com.example.devicesapi.exceptions.InvalidFieldValueException;
-import com.example.devicesapi.exceptions.InvalidOperationException;
-import com.example.devicesapi.exceptions.ResourceNotFoundException;
+import com.example.devicesapi.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +34,19 @@ public class GlobalExceptionHandler {
      * @param request http request
      * @return Response w/ ErrorInfo
      */
+    @ExceptionHandler(InvalidDuplicatedValuesException.class)
+    public ResponseEntity<ErrorInfo> handleDuplicatedValues(
+            InvalidFieldValueException ex,
+            HttpServletRequest request) {
+        return getErrorResponse(ex, request, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * handles all exceptions caused by missing or invalid input values
+     * @param ex throwed exception
+     * @param request http request
+     * @return Response w/ ErrorInfo
+     */
     @ExceptionHandler(InvalidFieldValueException.class)
     public ResponseEntity<ErrorInfo> handleInvalidValues(
             InvalidFieldValueException ex,
@@ -56,7 +66,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> handleInvalidOperation(
             InvalidOperationException ex,
             HttpServletRequest request) {
-        return getErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
+        return getErrorResponse(ex, request, HttpStatus.CONFLICT);
     }
 
     /**
