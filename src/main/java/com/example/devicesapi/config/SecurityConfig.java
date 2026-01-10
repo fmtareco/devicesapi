@@ -33,7 +33,7 @@ public class SecurityConfig {
     ) throws Exception {
 
         return http
-                .securityMatcher("/api/devices/**")
+                .securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

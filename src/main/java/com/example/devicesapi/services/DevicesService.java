@@ -136,7 +136,8 @@ public class DevicesService {
      * @return list of DeviceResponse corresponding to the selected Devices
      */
     @TrackExecution
-    @Cacheable(cacheNames = "devices")
+    //@Cacheable(cacheNames = "devices")
+    //@Cacheable(cacheNames = "devices")
     public PageResponse<DeviceResponse> getDevices(
             Optional<String> name,
             Optional<String> brand,
@@ -159,6 +160,31 @@ public class DevicesService {
         );
         return new PageResponse<>(devicesList, metadata);
     }
+
+    /**
+     * fetches a list of all existent device,optionally filtered by brand or state
+     * If it requires a filter, delegates on the method for that filter
+     *
+     * @param name  - when present, indicates that only devices of that name should be returned
+     * @param brand - when present, indicates that only devices of that brand should be returned
+     * @param state - when present, indicates that only devices on that state should be returned
+     * @param pageable - provides info about the pagination
+     * @return list of DeviceResponse corresponding to the selected Devices
+     */
+    public List<DeviceResponse> getAll(
+            Optional<String> name,
+            Optional<String> brand,
+            Optional<String> state,
+            Optional<LocalDateTime> startDateTime,
+            Optional<LocalDateTime> endDateTime,
+            Pageable pageable) {
+        return repo.findAll(byFilters(name,brand,state, startDateTime, endDateTime), pageable)
+                .stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+
 
     /**
      * fetches an existent device, from the input it

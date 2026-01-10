@@ -19,16 +19,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/devices")
-public class DevicesController {
-
-    /**
-     * Dependency injection of the services
-     *
-     */
-    private final DevicesService svc;
+public class DevicesController extends DevicesControllerBase {
 
     public DevicesController(DevicesService svc) {
-        this.svc = svc;
+        super(svc);
     }
 
 
@@ -83,7 +77,7 @@ public class DevicesController {
      * @return list of DeviceResponse corresponding to the matching devices
      */
     @GetMapping
-    public ResponseEntity<PageResponse<DeviceResponse>> getAll(
+    public ResponseEntity<List<DeviceResponse>> getAll(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String state,
@@ -95,30 +89,13 @@ public class DevicesController {
         Sort sort = getSort(ascending);
         Pageable pageable = PageRequest.of(page, size, sort);
         return ResponseEntity.ok(
-                svc.getDevices(
-                        Optional.ofNullable(name),
-                        Optional.ofNullable(brand),
-                        Optional.ofNullable(state),
-                        Optional.ofNullable(startDateTime),
-                        Optional.ofNullable(endDateTime),
-                        pageable));
-    }
-
-    /**
-     * return the Sort criteria
-     * @param ascending - indicates the input sort direction
-     * @return Sort criteria
-     */
-    private Sort getSort(boolean ascending) {
-        Sort.Direction direction = ascending ?
-                Sort.Direction.ASC:
-                Sort.Direction.DESC;
-        List<Sort.Order> orders = new ArrayList<>();
-        Sort.Order brandOrder = new Sort.Order(direction, "brand");
-        orders.add(brandOrder);
-        Sort.Order nameOrder = new Sort.Order(direction, "name");
-        orders.add(nameOrder);
-        return Sort.by(orders);
+                svc.getAll(
+                    Optional.ofNullable(name),
+                    Optional.ofNullable(brand),
+                    Optional.ofNullable(state),
+                    Optional.ofNullable(startDateTime),
+                    Optional.ofNullable(endDateTime),
+                    pageable));
     }
 
     /**
