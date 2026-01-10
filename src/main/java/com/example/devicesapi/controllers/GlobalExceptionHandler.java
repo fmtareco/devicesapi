@@ -5,15 +5,33 @@ import com.example.devicesapi.exceptions.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorInfo> handleInvalidArguments(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
+        Map<String, String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        FieldError::getDefaultMessage
+                ));
+        return getErrorResponse(ex, request, HttpStatus.BAD_REQUEST, errors);
+    }
 
     /**
      * handles all exceptions caused by invalid input values
@@ -25,7 +43,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> handleInvalidValues(
             MethodArgumentTypeMismatchException ex,
             HttpServletRequest request) {
-        return getErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
+        return getErrorResponse(ex, request, HttpStatus.BAD_REQUEST, null);
     }
 
     /**
@@ -38,7 +56,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> handleDuplicatedValues(
             InvalidFieldValueException ex,
             HttpServletRequest request) {
-        return getErrorResponse(ex, request, HttpStatus.CONFLICT);
+        return getErrorResponse(ex, request, HttpStatus.CONFLICT, null);
     }
 
     /**
@@ -51,7 +69,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> handleInvalidValues(
             InvalidFieldValueException ex,
             HttpServletRequest request) {
-        return getErrorResponse(ex, request, HttpStatus.BAD_REQUEST);
+        return getErrorResponse(ex, request, HttpStatus.BAD_REQUEST, null);
     }
 
     /**
@@ -66,7 +84,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> handleInvalidOperation(
             InvalidOperationException ex,
             HttpServletRequest request) {
-        return getErrorResponse(ex, request, HttpStatus.CONFLICT);
+        return getErrorResponse(ex, request, HttpStatus.CONFLICT, null);
     }
 
     /**
@@ -80,7 +98,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> handleResourceNotFound(
             ResourceNotFoundException ex,
             HttpServletRequest request) {
-        return getErrorResponse(ex, request, HttpStatus.NOT_FOUND);
+        return getErrorResponse(ex, request, HttpStatus.NOT_FOUND, null);
     }
 
     /**
@@ -91,10 +109,11 @@ public class GlobalExceptionHandler {
      * @return Response w/ ErrorInfo
      */
     public ResponseEntity<ErrorInfo> getErrorResponse(
-            RuntimeException ex,
+            Exception ex,
             HttpServletRequest request,
-            HttpStatus status) {
-        ErrorInfo info = getErrorInfo(ex, request, status);
+            HttpStatus status,
+            Map<String, String> errors) {
+        ErrorInfo info = getErrorInfo(ex, request, status, errors);
         return new ResponseEntity<>(info, status);
     }
 
@@ -105,14 +124,14 @@ public class GlobalExceptionHandler {
      * @param status http status code
      * @return error info structure
      */
-    public ErrorInfo getErrorInfo(Exception ex, HttpServletRequest request, HttpStatus status)
+    public ErrorInfo getErrorInfo(Exception ex, HttpServletRequest request, HttpStatus status, Map<String, String> errors)
     {
         return new ErrorInfo(ex.getMessage(),
                 status.getReasonPhrase(),
                 status.value(),
                 request.getRequestURI(),
                 Instant.now(),
-                null
+                errors
         );
     }
 }
